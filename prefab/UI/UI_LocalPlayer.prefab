@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 223815893374868242}
   - component: {fileID: 114229089630129770}
   - component: {fileID: 114874206360094360}
+  - component: {fileID: 114330891087928304}
   m_Layer: 5
   m_Name: UI_LocalPlayer
   m_TagString: Untagged
@@ -150,6 +151,38 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 'Ping:'
+--- !u!114 &114330891087928304
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1209625629766174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 122
+    i1: 102
+    i2: 158
+    i3: 28
+    i4: 193
+    i5: 184
+    i6: 221
+    i7: 212
+    i8: 250
+    i9: 232
+    i10: 59
+    i11: 238
+    i12: 135
+    i13: 253
+    i14: 177
+    i15: 141
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 1
 --- !u!114 &114874206360094360
 MonoBehaviour:
   m_ObjectHideFlags: 1

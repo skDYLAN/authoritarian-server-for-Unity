@@ -16,6 +16,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 	Text UI_tPing;
 	Text UI_tTime;
 
+
 	NetworkConnection connectToClient;
 
 	public float _serverTime;
@@ -25,8 +26,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 	void Start () {
 		if(!isLocalPlayer)
 			return;
-
-		connectToClient = GetComponent<NetworkIdentity> ().connectionToClient;
+	
 
 		_serverTime = Time.time;
 		CmdGetTimeToServer();
@@ -80,7 +80,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 	void CmdSendTimeToServer(float sendTime)
 	{
 		if(isServer)
-			TargetSendTimeToServer(GetComponent<NetworkIdentity>().connectionToClient, sendTime);
+			TargetSendTimeToServer(connectionToClient, sendTime);
 	}
 
 	[TargetRpc]
@@ -95,14 +95,15 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 	{	
 		if(isServer)
 		{
-			TargetGetTimeToServer(connectToClient, GetComponent<PlayerNetwork>().timeOfServer);
+			TargetGetTimeToServer(connectionToClient, GameObject.Find("GameManager").GetComponent<NetworkGameManager>().serverTime);
+			//GameObject.Find ("GameManager").GetComponent<NetworkManager_> ().serverTime2 = 1007;
 		}
 	}
 	[TargetRpc] // вызываеися на клиенте
 	void TargetGetTimeToServer(NetworkConnection target, float sendTime)
 	{
 		if(isClient)
-			_serverTime = sendTime - _serverTime + pingClient;
+			_serverTime = sendTime - Time.time + pingClient;
 	}
 
 }

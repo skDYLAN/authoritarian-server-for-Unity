@@ -9,7 +9,7 @@ public class PlayerControl_Client : NetworkBehaviour {
 	public float _delta;
 	public bool masterClient = false;
 
-	static public List<ScreenTransform> _scrinsTransformPlayer = new List<ScreenTransform>();
+	List<ScreenTransform> _scrinsTransformPlayer = new List<ScreenTransform>();
 
 	public float speed = 1;
 	float t =0;
@@ -31,10 +31,11 @@ public class PlayerControl_Client : NetworkBehaviour {
 	{
 		_rigidbody = GetComponent<Rigidbody>();
 	}
+	[Client]
 	void Update()
 	{
 		
-		if(isClient && masterClient == false)
+		if(masterClient == false)
 		{	
 			tick++;
 			Count = _scrinsTransformPlayer.Count;
@@ -68,12 +69,15 @@ public class PlayerControl_Client : NetworkBehaviour {
 		}
 		
 		
+		
+
 	}
 
 	[Client]
-	public void SetNewPositionOfPlayer(ScreenTransform screenTransform)
+	public void SetNewPositionOfPlayer(Vector3 newPosition, Quaternion newRotation, float timeScreen)
 	{
-			_scrinsTransformPlayer.Add(screenTransform);
+		_scrinsTransformPlayer.Add(new ScreenTransform(newPosition, newRotation, timeScreen));
+		//	_scrinsTransformPlayer.Add(screenTransform);
 	}
 
 	void CheckScreens()

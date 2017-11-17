@@ -64,10 +64,10 @@ public class PlayerNetwork : NetworkBehaviour {
 		_collider = GetComponent<Collider>();
 		
 		
-		if (NetworkManager_.sInstance != null)
-        {//we MAY be awake late (see comment on _wasInit above), so if the instance is already there we init
+
+        //we MAY be awake late (see comment on _wasInit above), so if the instance is already there we init
             Init();
-        }
+        
 		if(isServer)
 			StartCoroutine(IEPlayerMove());
 	}
@@ -75,14 +75,15 @@ public class PlayerNetwork : NetworkBehaviour {
 	{
  		if (_wasInit)
             return;
-		/*
+		
 		if(isLocalPlayer)
 		{
 			GameObject camControl = new GameObject("camControl");
-			camControl.transform.SetParent(NetworkManager_.sInstance.transform, false);
+			camControl.transform.SetParent(GetComponent<Transform>(), false);
 			camControl.transform.localPosition = new Vector3(0f, 0.45f, 0f);
 			camControl.AddComponent<Camera>();
-		
+		}
+		/*
 			GameObject textPositionObj = new GameObject("textPosition");
 			textPositionObj.transform.SetParent(NetworkManager_.sInstance.guiZone.transform, false);
 			_textPosition = textPositionObj.AddComponent<Text>();
@@ -177,7 +178,7 @@ public class PlayerNetwork : NetworkBehaviour {
 	{
 		if(isClient)
 		{
-			GetComponent<PlayerControl_Client>().SetNewPositionOfPlayer(new ScreenTransform(newPosition, newRotation, timeScreen));
+			GetComponent<PlayerControl_Client>().SetNewPositionOfPlayer(newPosition, newRotation, timeScreen);
 		}
 	}
 
