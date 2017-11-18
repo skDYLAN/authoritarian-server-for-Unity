@@ -459,6 +459,7 @@ MonoBehaviour:
   masterClient: 0
   speed: 6
   tick: 0
+  tickDel: 0
   Count: 0
 --- !u!114 &114813805371011782
 MonoBehaviour:
