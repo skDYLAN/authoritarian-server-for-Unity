@@ -11,9 +11,9 @@ public class NetworkGameManager : NetworkBehaviour {
 		
 	}
 	
-	[Server]
 	// Update is called once per frame
 	void Update () {
-		serverTime = Time.time;
+		if(isServer)
+			serverTime = Time.time;
 	}
 }
