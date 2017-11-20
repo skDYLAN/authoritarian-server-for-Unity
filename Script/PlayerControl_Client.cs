@@ -8,8 +8,10 @@ public class PlayerControl_Client : NetworkBehaviour {
 	public Vector3 newPositionOfPlayer;
 	public float _delta = 0;
 	public bool masterClient = false;
+    PlayerControl_LocalClient playerControl_LocalClient;
 
-	public List<ScreenTransform> _scrinsTransformPlayer = new List<ScreenTransform>();
+
+    public List<ScreenTransform> _scrinsTransformPlayer = new List<ScreenTransform>();
 
 	public float speed = 1;
 	float t =0;
@@ -50,6 +52,8 @@ public class PlayerControl_Client : NetworkBehaviour {
         if (isClient)
             startTime = Time.time;
 
+        playerControl_LocalClient = GetComponent<PlayerControl_LocalClient>();
+
     }
 	[Client]
 	void Update()
@@ -61,6 +65,7 @@ public class PlayerControl_Client : NetworkBehaviour {
 			Count = _scrinsTransformPlayer.Count;
 
             // Эстраполяция
+            /*
             if (_scrinsTransformPlayer.Count == 0 && prec > coefInExtr && extr == 0)
 			{
                 
@@ -82,51 +87,57 @@ public class PlayerControl_Client : NetworkBehaviour {
                 flagJourney = true;
                 extr = 1;
 			}
+            
 
             if (extr == 1 && _scrinsTransformPlayer.Count != 0)
                 if (numScr == _scrinsTransformPlayer[0].number)
                     _scrinsTransformPlayer.RemoveAt(0);
+            */
 
             if (_scrinsTransformPlayer.Count > 0)
 			{
-                startMarker_Position = transform.position;  
-				endPosition = _scrinsTransformPlayer[0].position;
-
-                if(!isLocalPlayer)
+                if (playerControl_LocalClient._serverTime + Time.time - 0.1f >= _scrinsTransformPlayer[0].time)
                 {
-                    startMarker_Rotation = transform.rotation;
-                    endRotation = _scrinsTransformPlayer[0].rotation;
+                    startMarker_Position = transform.position;
+                    endPosition = _scrinsTransformPlayer[0].position;
+
+                    if (!isLocalPlayer)
+                    {
+                        startMarker_Rotation = transform.rotation;
+                        endRotation = _scrinsTransformPlayer[0].rotation;
+                    }
+
+
+
+                    startTime = Time.time + restOfTime;
+                    flagJourney = true;
+                    numScr = _scrinsTransformPlayer[0].number;
+                    _scrinsTransformPlayer.RemoveAt(0);
+                    extr = 0;
+                    Debug.Log("start");
                 }
-
-
-
-                startTime = Time.time+ restOfTime;
-                flagJourney = true;
-                numScr= _scrinsTransformPlayer[0].number;
-                _scrinsTransformPlayer.RemoveAt(0);
-				extr = 0;
                 
             }
 
-                prec = ((Time.time) - startTime) / (0.1f);
+                prec = ((Time.time) - startTime) / (0.05f);
                 if (prec >= 1)
                 {
                     flagJourney = false;
                     if (prec > 1)
                     {
-                        // restOfTime = ((Time.time) - startTime) - (0.1f);
+                         restOfTime = ((Time.time) - startTime) - (0.1f);
                          restOfTime = 0;
-
-                    //prec = 1;
-                }
+                         prec = 1;
+                    }
                     else
                     {
                         restOfTime = 0;
                     }
                 }
-
+                
                 transform.position = Vector3.Lerp(startMarker_Position, endPosition, prec);
-                if (!isLocalPlayer)
+            Debug.Log(transform.position);
+            if (!isLocalPlayer)
                     transform.rotation = Quaternion.Slerp(startMarker_Rotation, endRotation, prec);
 
         }

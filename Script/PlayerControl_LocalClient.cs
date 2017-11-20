@@ -18,6 +18,8 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
     Text UI_tTail;
     Text UI_tDelta;
 
+    GameObject camControl;
+
     // вводимые значения игроком
     float _moveHorizontal = 0;
     float _moveVertical = 0;
@@ -37,7 +39,8 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
     NetworkConnection connectToClient;
     PlayerNetwork playerNetwork;
 
-	public float _serverTime;
+    public float _serverTime;
+
 
 
 	// Use this for initialization
@@ -47,8 +50,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 
        // playerNetwork = GetComponent<PlayerNetwork>();
 
-        _serverTime = Time.time;
-		CmdGetTimeToServer();
+        InitCamControll();
 		InitUI_LocalPlayer();
 
 		
@@ -96,13 +98,15 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
     }
 
     // Update is called once per frame
-    void LateUpdate () {
+    void FixedUpdate () {
 		if(!isLocalPlayer)
 			return;
 		
 		UpdateUI_LocalPlayer();
+        camControl.transform.position = transform.position + new Vector3(0f, 0.8f, 0f);
+        camControl.transform.rotation = transform.rotation;
 
-	}
+    }
 
 	void InitUI_LocalPlayer()
 	{	
@@ -119,7 +123,15 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
         }
 	}
 
-	void UpdateUI_LocalPlayer()
+    void InitCamControll()
+    {
+        camControl = new GameObject("camControl");
+       // camControl.transform.localPosition = new Vector3(0f, 0.45f, 0f);
+        camControl.AddComponent<Camera>();
+     }
+
+
+    void UpdateUI_LocalPlayer()
 	{
 		if(UI_tPing != null)
 			UI_tPing.text = "Ping: " + pingClient.ToString();				
@@ -138,9 +150,11 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 		{
 			while(true)
 			{
-				yield return new WaitForSeconds(3f);
 				CmdSendTimeToServer(Time.time);
-			}
+                _serverTime = Time.time;
+                CmdGetTimeToServer();
+                yield return new WaitForSeconds(3f);
+            }
 		}
 	}
 

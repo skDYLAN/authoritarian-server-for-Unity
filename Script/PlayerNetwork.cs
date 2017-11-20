@@ -51,7 +51,7 @@ public class PlayerNetwork : NetworkBehaviour {
 		
 
         //we MAY be awake late (see comment on _wasInit above), so if the instance is already there we init
-            Init();
+            //Init();
         if (isServer)
         {
             StartCoroutine(IEPlayerMove());

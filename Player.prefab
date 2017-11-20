@@ -58,8 +58,8 @@ GameObject:
   - component: {fileID: 54708513088480016}
   - component: {fileID: 114152764286164704}
   - component: {fileID: 114813805371011782}
-  - component: {fileID: 114689622684717200}
   - component: {fileID: 114226146665629782}
+  - component: {fileID: 114689622684717200}
   - component: {fileID: 114261842785696152}
   m_Layer: 0
   m_Name: Player
@@ -474,7 +474,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bb423398e80b4c42a4664d4375bacf4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ServerMoveHorizontal: 0
   ServerMoveVertical: 0
+  ServerJump: 0
+  ServerYRotation: 0
+  ServerXRotation: 0
   ServerMoveVerticalOld: 0
   maxRate: 0.05
   tick: 0
