@@ -391,7 +391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 000cc1a1484efae41a13acaf9976a214, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 6
+  speed: 4
   lookSpeed: 3
   forceJump: 300
   playingNetwork: 1
@@ -457,10 +457,11 @@ MonoBehaviour:
   newPositionOfPlayer: {x: 0, y: 0, z: 0}
   _delta: 3
   masterClient: 0
-  speed: 6
+  speed: 1
   tick: 0
   tickDel: 0
   Count: 0
+  deltaResult: 0
 --- !u!114 &114813805371011782
 MonoBehaviour:
   m_ObjectHideFlags: 1

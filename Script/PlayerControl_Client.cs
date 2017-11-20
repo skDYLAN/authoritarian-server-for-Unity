@@ -16,21 +16,30 @@ public class PlayerControl_Client : NetworkBehaviour {
 
 	public int tick=0;
 	public int tickDel=0;
-	 float fracJourney = 1f;
-	Vector3 endPosition;
+	bool flagJourney = false;
+	
 	Rigidbody _rigidbody;
-	 float journeyLength = 0;
-	 float distCovered = 0;
-	 float EndTime = 0;
-	Transform startMarker;
-	public int Count;
-	 Vector3 newPos;
+	float EndTime = 0;
+
+    Vector3 endPosition;
+    Quaternion endRotation;
+    Vector3 startMarker_Position;
+    Quaternion startMarker_Rotation;
+
+    public int Count;
+    public float deltaResult = 0;
+    float prec=0;
+
+    Vector3 newPos;
 	float distCur;
-	float timeWay;
+	float startTime;
 	float StarttimeWay;
+    float restOfTime=0;
 
 	uint numScreen=1;
-	int extr = 0;
+	int extr = 1;
+    uint numScr = 0;
+    public float coefInExtr=1;
 
     int step = 0;
 
@@ -38,7 +47,10 @@ public class PlayerControl_Client : NetworkBehaviour {
 	void Start()
 	{
 		_rigidbody = GetComponent<Rigidbody>();
-	}
+        if (isClient)
+            startTime = Time.time;
+
+    }
 	[Client]
 	void Update()
 	{
@@ -47,74 +59,77 @@ public class PlayerControl_Client : NetworkBehaviour {
 		{	
 			tick++;
 			Count = _scrinsTransformPlayer.Count;
-			
-			// Эстраполяция
-			if(_scrinsTransformPlayer.Count == 1 && fracJourney >=1 && extr == 0)
-			{
-                Debug.Log("extr");
-				startMarker = transform;
-				endPosition = (_scrinsTransformPlayer[0].position - startMarker.position) + _scrinsTransformPlayer[0].position;
-				journeyLength = Vector3.Distance(startMarker.position, endPosition);
-				if(journeyLength != 0.0f)
-				{
-					EndTime = Time.time + 0.1f;
-					distCovered = 0f;
-					fracJourney=0f;
-					speed = journeyLength/1f;
-					distCur=0f;
-					StarttimeWay  = Time.time;
-					// Замерять сколько прошел
-				}
-                Debug.Log(_scrinsTransformPlayer[0].number);
-				_scrinsTransformPlayer.RemoveAt(0);
-				tickDel++;
-				extr = 1;
-			}
 
-
-            if (_scrinsTransformPlayer.Count > 1 + extr && fracJourney >=1)
-			{
-                if(extr==1)
+            if (extr == 1 && _scrinsTransformPlayer.Count !=0)
+                if(numScr == _scrinsTransformPlayer[0].number)
                     _scrinsTransformPlayer.RemoveAt(0);
-                _scrinsTransformPlayer.RemoveAt(0);
-				startMarker = transform;
-				endPosition = _scrinsTransformPlayer[0].position;
-                Debug.Log(_scrinsTransformPlayer[0].number);
-				journeyLength = Vector3.Distance(startMarker.position, endPosition);
-				if(journeyLength != 0.0f)
-				{
-					EndTime = Time.time + 0.1f;
-					distCovered = 0f;
-					fracJourney=0f;
-					speed = journeyLength/ 1f;
-					distCur=0f;
-					StarttimeWay  = Time.time;
-					// Замерять сколько прошел
-				}
-				_scrinsTransformPlayer.RemoveAt(0);
-				extr = 0;
+
+            // Эстраполяция
+            if (_scrinsTransformPlayer.Count == 0 && prec > coefInExtr && extr == 0)
+			{
+                
+				endPosition = (endPosition - startMarker_Position) + endPosition;
+                startMarker_Position = transform.position;
+                numScr++;
+
+                /*
+                if (!isLocalPlayer)
+                {
+                    startMarker_Rotation = transform.rotation;
+                    endRotation = _scrinsTransformPlayer[0].rotation;
+                }
+                */
+
+                tickDel++;
+
+                startTime = Time.time ;
+                flagJourney = true;
+                extr = 1;
 			}
 
-			if(fracJourney < 1)
-			{
-                float t = EndTime - Time.time;
-                if (t < 0)
-                {
-                    fracJourney = 1;
-                }
-                else
-                {
-                    distCovered = journeyLength - ((t) * speed);
-                    fracJourney = distCovered / journeyLength;
-                }
-				transform.position = Vector3.Lerp(startMarker.position, endPosition, Time.time/100);
-				distCur = Vector3.Distance(transform.position, endPosition);
 
-				timeWay = Time.time;
-                step++;
+            if (_scrinsTransformPlayer.Count > 0)
+			{
+                startMarker_Position = transform.position;  
+				endPosition = _scrinsTransformPlayer[0].position;
+
+                if(!isLocalPlayer)
+                {
+                    startMarker_Rotation = transform.rotation;
+                    endRotation = _scrinsTransformPlayer[0].rotation;
+                }
+
+
+
+                startTime = Time.time;
+                flagJourney = true;
+                numScr= _scrinsTransformPlayer[0].number;
+                _scrinsTransformPlayer.RemoveAt(0);
+				extr = 0;
                 
             }
 
+                prec = ((Time.time) - startTime) / (0.1f);
+                if (prec >= 1)
+                {
+                    flagJourney = false;
+                    if (prec > 1)
+                    {
+                         restOfTime = ((Time.time) - startTime) - (0.1f);
+                         prec = 1;
+                    }
+                    else
+                    {
+                        restOfTime = 0;
+                    }
+
+                    Debug.Log(restOfTime);
+                }
+
+                transform.position = Vector3.Lerp(startMarker_Position, endPosition, prec);
+                Debug.Log(string.Format("Pos{0} -- End{1}", transform.position, endPosition));
+                if (!isLocalPlayer)
+                    transform.rotation = Quaternion.Slerp(startMarker_Rotation, endRotation, prec);
 
         }
 		
@@ -127,8 +142,11 @@ public class PlayerControl_Client : NetworkBehaviour {
 	public void SetNewPositionOfPlayer(Vector3 newPosition, Quaternion newRotation, float timeScreen)
 	{
 		_scrinsTransformPlayer.Add(new ScreenTransform(newPosition, newRotation, timeScreen, numScreen));
-		_delta += timeScreen - t;
-		//Debug.Log(_delta/numScreen);
+        if (numScreen > 1)
+        {
+            _delta += timeScreen - t;
+            deltaResult = (_delta / (numScreen + 1))-0.05f;
+        }
 		t = timeScreen;
 		numScreen++;
 		

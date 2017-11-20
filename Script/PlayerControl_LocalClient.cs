@@ -15,9 +15,11 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 	GameObject UI_LocalPlayer;
 	Text UI_tPing;
 	Text UI_tTime;
+    Text UI_tTail;
+    Text UI_tDelta;
 
 
-	NetworkConnection connectToClient;
+    NetworkConnection connectToClient;
 
 	public float _serverTime;
 
@@ -53,7 +55,9 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 		{
 			UI_tPing = UI_LocalPlayer.GetComponent<Transform>().Find("tPing").GetComponent<Text>();
 			UI_tTime = UI_LocalPlayer.GetComponent<Transform>().Find("tTime").GetComponent<Text>();
-		}
+            UI_tTail = UI_LocalPlayer.GetComponent<Transform>().Find("tTail").GetComponent<Text>();
+            UI_tDelta = UI_LocalPlayer.GetComponent<Transform>().Find("tDelta").GetComponent<Text>();
+        }
 	}
 
 	void UpdateUI_LocalPlayer()
@@ -62,7 +66,12 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 			UI_tPing.text = "Ping: " + pingClient.ToString();				
 		if(UI_tTime != null)
 			UI_tTime.text = "Time on Server: " + (_serverTime + Time.time);
-	}
+        if (UI_tTime != null)
+            UI_tTail.text = "Tail: " + GetComponent<PlayerControl_Client>()._scrinsTransformPlayer.Count.ToString();
+        if (UI_tDelta != null)
+            UI_tDelta.text = "Delta: " + GetComponent<PlayerControl_Client>().deltaResult.ToString();
+
+    }
 
 	IEnumerator GetPing()
     {

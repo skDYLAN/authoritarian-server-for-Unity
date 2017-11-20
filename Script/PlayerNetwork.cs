@@ -62,7 +62,7 @@ public class PlayerNetwork : NetworkBehaviour {
 	void Start () {
 		_rigidbody = GetComponent<Rigidbody>();
 		_collider = GetComponent<Collider>();
-		
+        
 		
 
         //we MAY be awake late (see comment on _wasInit above), so if the instance is already there we init
