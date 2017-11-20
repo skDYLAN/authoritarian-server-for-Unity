@@ -164,7 +164,7 @@ MeshCollider:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 220981667}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: f9efa1bd3448986479df441aff5233be, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -297,8 +297,8 @@ MonoBehaviour:
   m_Channels: 0500000000000000
   m_UseWebSockets: 0
   m_UseSimulator: 0
-  m_SimulatedLatency: 100
-  m_PacketLossPercentage: 0
+  m_SimulatedLatency: 25
+  m_PacketLossPercentage: 3
   m_MaxBufferedPackets: 16
   m_AllowFragmentation: 1
   m_MatchHost: mm.unet.unity3d.com

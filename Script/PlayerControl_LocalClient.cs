@@ -18,8 +18,24 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
     Text UI_tTail;
     Text UI_tDelta;
 
+    // вводимые значения игроком
+    float _moveHorizontal = 0;
+    float _moveVertical = 0;
+    bool _jump = false;
+    float _yRotation = 0;
+    float _xRotation = 0;
+    //
+    //старые значения
+    float _moveHorizontalOld = 0;
+    float _moveVerticalOld = 0;
+    bool _jumpOld = false;
+    float _yRotationOld = 0;
+    float _xRotationOld = 0;
+    //
+
 
     NetworkConnection connectToClient;
+    PlayerNetwork playerNetwork;
 
 	public float _serverTime;
 
@@ -28,16 +44,59 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 	void Start () {
 		if(!isLocalPlayer)
 			return;
-	
 
-		_serverTime = Time.time;
+       // playerNetwork = GetComponent<PlayerNetwork>();
+
+        _serverTime = Time.time;
 		CmdGetTimeToServer();
 		InitUI_LocalPlayer();
+
 		
 	}
-	
-	// Update is called once per frame
-	void LateUpdate () {
+
+    private void Update()
+    {
+        if (isLocalPlayer)
+        {
+            _moveVertical = 0;
+            if (Input.GetKey(KeyCode.W))
+                _moveVertical = 1;
+            if (Input.GetKey(KeyCode.S))
+                _moveVertical = -1;
+
+            _moveHorizontal = 0;
+            if (Input.GetKey(KeyCode.D))
+                _moveHorizontal = 1;
+            if (Input.GetKey(KeyCode.A))
+                _moveHorizontal = -1;
+
+            _jump = Input.GetButtonDown("Jump");
+
+            _yRotation += Input.GetAxisRaw("Mouse Y");
+            _xRotation += Input.GetAxisRaw("Mouse X");
+
+            GetComponent<PlayerControl>().setRotationX(_xRotation);
+            GetComponent<PlayerControl>().setRotationY(_yRotation);
+
+            CmdSetRotationY_Server(_yRotation);
+            CmdSetRotationX_Server(_xRotation);
+
+            if (_moveHorizontal != _moveHorizontalOld)
+            {
+                _moveHorizontalOld = _moveHorizontal;
+                CmdSendInputMoveHorizaontal(_moveHorizontal);
+            }
+
+            if (_moveVertical != _moveVerticalOld)
+            {
+                _moveVerticalOld = _moveVertical;
+                CmdSendInputMoveVertical(_moveVertical);
+            }
+        }
+    }
+
+    // Update is called once per frame
+    void LateUpdate () {
 		if(!isLocalPlayer)
 			return;
 		
@@ -104,10 +163,11 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 	{	
 		if(isServer)
 		{
-			TargetGetTimeToServer(connectionToClient, GameObject.Find("GameManager").GetComponent<NetworkGameManager>().serverTime);
+			TargetGetTimeToServer(connectionToClient, Time.time);
 			//GameObject.Find ("GameManager").GetComponent<NetworkManager_> ().serverTime2 = 1007;
 		}
 	}
+
 	[TargetRpc] // вызываеися на клиенте
 	void TargetGetTimeToServer(NetworkConnection target, float sendTime)
 	{
@@ -115,4 +175,26 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 			_serverTime = sendTime - Time.time + pingClient;
 	}
 
+    [Command(channel = Channels.DefaultReliable)]
+    void CmdSetRotationX_Server(float xRotation)
+    {
+        GetComponent<PlayerNetwork>().ServerXRotation = xRotation;
+    }
+
+    [Command(channel = Channels.DefaultReliable)]
+    void CmdSetRotationY_Server(float yRotation)
+    {
+        GetComponent<PlayerNetwork>().ServerYRotation = yRotation;
+    }
+
+    [Command]
+    void CmdSendInputMoveHorizaontal(float InputMove)
+    {
+        GetComponent<PlayerNetwork>().ServerMoveHorizontal = InputMove;
+    }
+    [Command]
+    void CmdSendInputMoveVertical(float InputMove)
+    {
+        GetComponent<PlayerNetwork>().ServerMoveVertical = InputMove;
+    }
 }

@@ -8,32 +8,16 @@ public class PlayerNetwork : NetworkBehaviour {
 
 	Text _textPosition;
 
-	// вводимые значения игроком
-    float _moveHorizontal = 0;
-    float _moveVertical = 0;
-	bool _jump = false;
-	float _yRotation = 0;
-	float _xRotation = 0; 
-	//
-
-	//старые значения
-	float _moveHorizontalOld = 0;
-    float _moveVerticalOld = 0;
-	bool _jumpOld = false;
-	float _yRotationOld = 0;
-	float _xRotationOld = 0; 
-	//
-
-	//Серверные значения
-	float ServerMoveHorizontal = 0;
+    //Серверные значения
+    public float ServerMoveHorizontal = 0;
     public float ServerMoveVertical = 0;
-	bool ServerJump = false;
-	float ServerYRotation = 0;
-	float ServerXRotation = 0; 
-	//
-	
-	//Старые Серверные значения
- 	float ServerMoveHorizontalOld = 0;
+    public bool ServerJump = false;
+    public float ServerYRotation = 0;
+    public float ServerXRotation = 0;
+    //
+
+    //Старые Серверные значения
+    float ServerMoveHorizontalOld = 0;
     public float ServerMoveVerticalOld = 0;
 	bool ServerJumpOld = false;
 	float ServerYRotationOld = 0;
@@ -42,9 +26,10 @@ public class PlayerNetwork : NetworkBehaviour {
 
 	//Серверные
 	public float maxRate = 0.03f;
-	//
+    PlayerControl playerControl_server;
+    //
 
-	protected Rigidbody _rigidbody;
+    protected Rigidbody _rigidbody;
     protected Collider _collider;
 	static public NetworkManager_ sInstance = null;
 	protected bool _wasInit = false;
@@ -67,8 +52,11 @@ public class PlayerNetwork : NetworkBehaviour {
 
         //we MAY be awake late (see comment on _wasInit above), so if the instance is already there we init
             Init();
-		if(isServer)
-			StartCoroutine(IEPlayerMove());
+        if (isServer)
+        {
+            StartCoroutine(IEPlayerMove());
+            playerControl_server = GetComponent<PlayerControl>();
+        }
 	}
 	void Init()
 	{
@@ -95,81 +83,22 @@ public class PlayerNetwork : NetworkBehaviour {
 
 	}
 
-	void Update () {
-		if(isLocalPlayer)
-		{
-			_moveVertical = 0;
-			if(Input.GetKey(KeyCode.W))
-				_moveVertical = 1;
-			if(Input.GetKey(KeyCode.S))
-				_moveVertical = -1;
-				
-			_moveHorizontal = 0;
-			if(Input.GetKey(KeyCode.D))
-				_moveHorizontal = 1;
-			if(Input.GetKey(KeyCode.A))
-				_moveHorizontal = -1;
-
-			_jump = Input.GetButtonDown("Jump");
-
-			_yRotation += Input.GetAxisRaw("Mouse Y");
-			_xRotation += Input.GetAxisRaw("Mouse X");
-
-			GetComponent<PlayerControl>().setRotationX(_xRotation);
-			GetComponent<PlayerControl>().setRotationY(_yRotation);
-			
-
-			timeOfClient = Time.time;
-		}
-		if(isServer)
-			timeOfServer = Time.time;
-	}
-
+	
 	void FixedUpdate()
 	{
-		if(isLocalPlayer)
-		{
-			CmdSetRotationY_Server(_yRotation);
-			CmdSetRotationX_Server(_xRotation);
-
-			if(_moveHorizontal != _moveHorizontalOld)
-			{
-				_moveHorizontalOld = _moveHorizontal;
-				CmdSendInputMoveHorizaontal(_moveHorizontal);
-				//StartCoroutine(ReturnToLoby(0.1f));
-			}
-
-			if(_moveVertical != _moveVerticalOld)
-			{
-				_moveVerticalOld = _moveVertical;
-				CmdSendInputMoveVertical(_moveVertical);
-				//StartCoroutine(ReturnToLoby(0.1f));
-			}
-		}
-
 		if(isServer)
 		{
 			if(ServerMoveHorizontal != ServerMoveHorizontalOld || ServerMoveVertical != ServerMoveVerticalOld )
 			{
 				ServerMoveHorizontalOld = ServerMoveHorizontal;
 				ServerMoveVerticalOld = ServerMoveVertical;
-				
-				GetComponent<PlayerControl>().setMoveHorizontal(ServerMoveHorizontal);
-				GetComponent<PlayerControl>().setMoveVertical(ServerMoveVertical);
+
+                playerControl_server.setMoveHorizontal(ServerMoveHorizontal);
+                playerControl_server.setMoveVertical(ServerMoveVertical);
 			}
-			GetComponent<PlayerControl>().setRotationX(ServerXRotation);
-			GetComponent<PlayerControl>().setRotationY(ServerYRotation);
+            playerControl_server.setRotationX(ServerXRotation);
+            playerControl_server.setRotationY(ServerYRotation);
 		}
-	}
-	[Command]
-	void CmdSendInputMoveHorizaontal(float InputMove)
-	{
-		ServerMoveHorizontal = InputMove;
-	}
-	[Command]
-	void CmdSendInputMoveVertical(float InputMove)
-	{
-		ServerMoveVertical = InputMove;
 	}
 
 	[ClientRpc(channel=Channels.DefaultReliable)]
@@ -181,17 +110,6 @@ public class PlayerNetwork : NetworkBehaviour {
 		}
 	}
 
-	[Command(channel=Channels.DefaultReliable)]
-	void CmdSetRotationX_Server(float xRotation)
-	{
-		ServerXRotation = xRotation;
-	}
-
-	[Command(channel=Channels.DefaultReliable)]
-	void CmdSetRotationY_Server(float yRotation)
-	{
-		ServerYRotation = yRotation;
-	}
 
 	[ClientRpc(channel=Channels.DefaultReliable)]
 	void RpcplayerRotation(Quaternion rotationCurrent)
@@ -217,25 +135,5 @@ public class PlayerNetwork : NetworkBehaviour {
 		}
 	}
 
-
-	[Command]
-	void CmdSendTimeToServer(float sendTime)
-	{
-		TargetSendTimeToServer(GetComponent<NetworkIdentity>().connectionToClient, sendTime);
-	}
-
-	[TargetRpc]
-	void TargetSendTimeToServer(NetworkConnection target, float sendTime)
-	{
-		if(isClient)
-			pingClient = Time.time-sendTime;
-	}
-
-	[TargetRpc]
-	void TargetGetServerTime(NetworkConnection target, float sendTime)
-	{
-		if(isServer)
-			pingClient = Time.time;
-	}
 
 }

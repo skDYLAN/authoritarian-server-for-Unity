@@ -21,10 +21,6 @@ public class NetworkManager_ : NetworkBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		if(isServer)
-			serverTime = Time.time;
-	}
 	public override void OnStartClient()
     {
         base.OnStartClient();

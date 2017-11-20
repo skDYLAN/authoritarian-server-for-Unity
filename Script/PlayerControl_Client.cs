@@ -36,7 +36,7 @@ public class PlayerControl_Client : NetworkBehaviour {
 	float StarttimeWay;
     float restOfTime=0;
 
-	uint numScreen=1;
+	uint numScreen=0;
 	int extr = 1;
     uint numScr = 0;
     public float coefInExtr=1;
@@ -60,10 +60,6 @@ public class PlayerControl_Client : NetworkBehaviour {
 			tick++;
 			Count = _scrinsTransformPlayer.Count;
 
-            if (extr == 1 && _scrinsTransformPlayer.Count !=0)
-                if(numScr == _scrinsTransformPlayer[0].number)
-                    _scrinsTransformPlayer.RemoveAt(0);
-
             // Эстраполяция
             if (_scrinsTransformPlayer.Count == 0 && prec > coefInExtr && extr == 0)
 			{
@@ -72,21 +68,24 @@ public class PlayerControl_Client : NetworkBehaviour {
                 startMarker_Position = transform.position;
                 numScr++;
 
-                /*
+                
                 if (!isLocalPlayer)
                 {
+                    endRotation = Quaternion.Slerp(startMarker_Rotation, endRotation, 2);
                     startMarker_Rotation = transform.rotation;
-                    endRotation = _scrinsTransformPlayer[0].rotation;
                 }
-                */
+                
 
                 tickDel++;
 
-                startTime = Time.time ;
+                startTime = Time.time+ restOfTime;
                 flagJourney = true;
                 extr = 1;
 			}
 
+            if (extr == 1 && _scrinsTransformPlayer.Count != 0)
+                if (numScr == _scrinsTransformPlayer[0].number)
+                    _scrinsTransformPlayer.RemoveAt(0);
 
             if (_scrinsTransformPlayer.Count > 0)
 			{
@@ -101,7 +100,7 @@ public class PlayerControl_Client : NetworkBehaviour {
 
 
 
-                startTime = Time.time;
+                startTime = Time.time+ restOfTime;
                 flagJourney = true;
                 numScr= _scrinsTransformPlayer[0].number;
                 _scrinsTransformPlayer.RemoveAt(0);
@@ -115,19 +114,18 @@ public class PlayerControl_Client : NetworkBehaviour {
                     flagJourney = false;
                     if (prec > 1)
                     {
-                         restOfTime = ((Time.time) - startTime) - (0.1f);
-                         prec = 1;
-                    }
+                        // restOfTime = ((Time.time) - startTime) - (0.1f);
+                         restOfTime = 0;
+
+                    //prec = 1;
+                }
                     else
                     {
                         restOfTime = 0;
                     }
-
-                    Debug.Log(restOfTime);
                 }
 
                 transform.position = Vector3.Lerp(startMarker_Position, endPosition, prec);
-                Debug.Log(string.Format("Pos{0} -- End{1}", transform.position, endPosition));
                 if (!isLocalPlayer)
                     transform.rotation = Quaternion.Slerp(startMarker_Rotation, endRotation, prec);
 
@@ -145,7 +143,7 @@ public class PlayerControl_Client : NetworkBehaviour {
         if (numScreen > 1)
         {
             _delta += timeScreen - t;
-            deltaResult = (_delta / (numScreen + 1))-0.05f;
+            deltaResult = (_delta / (numScreen + 2))-0.05f;
         }
 		t = timeScreen;
 		numScreen++;

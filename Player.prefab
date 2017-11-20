@@ -391,7 +391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 000cc1a1484efae41a13acaf9976a214, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 4
+  speed: 6
   lookSpeed: 3
   forceJump: 300
   playingNetwork: 1
@@ -462,6 +462,7 @@ MonoBehaviour:
   tickDel: 0
   Count: 0
   deltaResult: 0
+  coefInExtr: 0.9
 --- !u!114 &114813805371011782
 MonoBehaviour:
   m_ObjectHideFlags: 1
