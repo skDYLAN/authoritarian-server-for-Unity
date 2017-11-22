@@ -44,6 +44,7 @@ public class PlayerControl_Client : NetworkBehaviour {
     public float coefInExtr=1;
 
     int step = 0;
+    float timer;
 
 
 	void Start()
@@ -64,12 +65,20 @@ public class PlayerControl_Client : NetworkBehaviour {
 			tick++;
 			Count = _scrinsTransformPlayer.Count;
 
+            if(playerControl_LocalClient._serverTime + Time.time - 0.1f > (timer + 0.05f) && Count==0)
+                flagJourney = true;
+            if(Count>0)
+                if(_scrinsTransformPlayer[0].time > timer + 0.09f && _scrinsTransformPlayer[0].time < timer+0.11f)
+                    flagJourney = true;
             // Эстраполяция
-            /*
-            if (_scrinsTransformPlayer.Count == 0 && prec > coefInExtr && extr == 0)
-			{
+            
+            if (flagJourney == true)
+			{   
+                if(Count == 0)
+				    endPosition = (endPosition - startMarker_Position) + endPosition;
+                else
+                    endPosition = (endPosition + _scrinsTransformPlayer[0].position)/2;
                 
-				endPosition = (endPosition - startMarker_Position) + endPosition;
                 startMarker_Position = transform.position;
                 numScr++;
 
@@ -83,16 +92,16 @@ public class PlayerControl_Client : NetworkBehaviour {
 
                 tickDel++;
 
-                startTime = Time.time+ restOfTime;
-                flagJourney = true;
+                startTime = Time.time;
                 extr = 1;
+                flagJourney = false;
 			}
             
 
             if (extr == 1 && _scrinsTransformPlayer.Count != 0)
                 if (numScr == _scrinsTransformPlayer[0].number)
                     _scrinsTransformPlayer.RemoveAt(0);
-            */
+            
 
             if (_scrinsTransformPlayer.Count > 0)
 			{
@@ -109,25 +118,26 @@ public class PlayerControl_Client : NetworkBehaviour {
 
 
 
-                    startTime = Time.time + restOfTime;
-                    flagJourney = true;
+                    startTime = Time.time;
+
                     numScr = _scrinsTransformPlayer[0].number;
+                    timer = _scrinsTransformPlayer[0].time;
                     _scrinsTransformPlayer.RemoveAt(0);
                     extr = 0;
-                    Debug.Log("start");
+                    
                 }
                 
             }
 
-                prec = ((Time.time) - startTime) / (0.05f);
+                prec = ((Time.time) - startTime) / (0.05f - restOfTime);
                 if (prec >= 1)
                 {
-                    flagJourney = false;
                     if (prec > 1)
                     {
-                         restOfTime = ((Time.time) - startTime) - (0.1f);
+                         restOfTime = (Time.time - startTime) - (0.05f - restOfTime);
                          restOfTime = 0;
                          prec = 1;
+
                     }
                     else
                     {
@@ -136,7 +146,7 @@ public class PlayerControl_Client : NetworkBehaviour {
                 }
                 
                 transform.position = Vector3.Lerp(startMarker_Position, endPosition, prec);
-            Debug.Log(transform.position);
+
             if (!isLocalPlayer)
                     transform.rotation = Quaternion.Slerp(startMarker_Rotation, endRotation, prec);
 

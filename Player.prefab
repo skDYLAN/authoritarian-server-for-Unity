@@ -80,7 +80,7 @@ GameObject:
   - component: {fileID: 65509482906266882}
   - component: {fileID: 23897951461784934}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -409,6 +409,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab_UI_LocalPlayer: {fileID: 1209625629766174, guid: 7a669e1cc1b8ddd4fae83bee87fdb18d,
+    type: 2}
+  Prefab_UI_arms_LocalPlayer: {fileID: 1415007346325446, guid: a20ba7ede7bc4a64c997943d63795eb8,
     type: 2}
   _serverTime: 0
 --- !u!114 &114261842785696152

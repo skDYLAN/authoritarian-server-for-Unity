@@ -12,8 +12,11 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 	// UI
 	[SerializeField]
 	GameObject Prefab_UI_LocalPlayer;
-	GameObject UI_LocalPlayer;
-	Text UI_tPing;
+    [SerializeField]
+    GameObject Prefab_UI_arms_LocalPlayer;
+    GameObject UI_LocalPlayer;
+    GameObject UI_arms_LocalPlayer;
+    Text UI_tPing;
 	Text UI_tTime;
     Text UI_tTail;
     Text UI_tDelta;
@@ -50,7 +53,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 
        // playerNetwork = GetComponent<PlayerNetwork>();
 
-        InitCamControll();
+      //  InitCamControll();
 		InitUI_LocalPlayer();
 
 		
@@ -103,8 +106,8 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 			return;
 		
 		UpdateUI_LocalPlayer();
-        camControl.transform.position = transform.position + new Vector3(0f, 0.8f, 0f);
-        camControl.transform.rotation = transform.rotation;
+        UI_arms_LocalPlayer.transform.position = transform.position;
+        UI_arms_LocalPlayer.transform.rotation = transform.rotation;
 
     }
 
@@ -113,7 +116,9 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 		
 		StartCoroutine(GetPing());
 
-		UI_LocalPlayer = Instantiate(Prefab_UI_LocalPlayer);
+        UI_arms_LocalPlayer = Instantiate(Prefab_UI_arms_LocalPlayer);
+        UI_LocalPlayer = Instantiate(Prefab_UI_LocalPlayer);
+
 		if(UI_LocalPlayer != null)
 		{
 			UI_tPing = UI_LocalPlayer.GetComponent<Transform>().Find("tPing").GetComponent<Text>();
@@ -121,7 +126,18 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
             UI_tTail = UI_LocalPlayer.GetComponent<Transform>().Find("tTail").GetComponent<Text>();
             UI_tDelta = UI_LocalPlayer.GetComponent<Transform>().Find("tDelta").GetComponent<Text>();
         }
-	}
+        if (UI_arms_LocalPlayer != null)
+        {
+            UI_arms_LocalPlayer.GetComponent<Transform>().Find("Camera").localPosition = new Vector3(0, 0.9f, 0);
+            UI_arms_LocalPlayer.GetComponent<Transform>().Find("Gun").localPosition = new Vector3(0.613f, 0.55f, 0.458f);
+        }
+
+        GetComponent<Transform>().Find("Gun").GetComponent<MeshRenderer>().enabled = false;
+        GetComponent<Transform>().Find("Hair").GetComponent<MeshRenderer>().enabled = false;
+        GetComponent<Transform>().Find("Glass").GetComponent<MeshRenderer>().enabled = false;
+        GetComponent<Transform>().Find("Capsule").GetComponent<MeshRenderer>().enabled = false;
+
+    }
 
     void InitCamControll()
     {
@@ -151,9 +167,8 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 			while(true)
 			{
 				CmdSendTimeToServer(Time.time);
-                _serverTime = Time.time;
                 CmdGetTimeToServer();
-                yield return new WaitForSeconds(3f);
+                yield return new WaitForSeconds(1f);
             }
 		}
 	}
