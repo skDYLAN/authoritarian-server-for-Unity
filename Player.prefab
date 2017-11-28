@@ -58,12 +58,11 @@ GameObject:
   - component: {fileID: 54708513088480016}
   - component: {fileID: 114152764286164704}
   - component: {fileID: 114813805371011782}
-  - component: {fileID: 114226146665629782}
   - component: {fileID: 114689622684717200}
   - component: {fileID: 114261842785696152}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -336,10 +335,10 @@ Rigidbody:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1818408930792500}
   serializedVersion: 2
-  m_Mass: 1
+  m_Mass: 10
   m_Drag: 0
   m_AngularDrag: 0.05
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 112
@@ -394,25 +393,7 @@ MonoBehaviour:
   speed: 6
   lookSpeed: 3
   forceJump: 300
-  playingNetwork: 1
-  _delta: 1.5
   test: {x: 0, y: 0, z: 0}
---- !u!114 &114226146665629782
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1818408930792500}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca0ef902145da3e4086a28b1fb152d53, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Prefab_UI_LocalPlayer: {fileID: 1209625629766174, guid: 7a669e1cc1b8ddd4fae83bee87fdb18d,
-    type: 2}
-  Prefab_UI_arms_LocalPlayer: {fileID: 1415007346325446, guid: a20ba7ede7bc4a64c997943d63795eb8,
-    type: 2}
-  _serverTime: 0
 --- !u!114 &114261842785696152
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -456,15 +437,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 580dc855716fa5d4b85dfcb231ef2135, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  newPositionOfPlayer: {x: 0, y: 0, z: 0}
-  _delta: 3
   masterClient: 0
-  speed: 1
+  netGM_Local: {fileID: 0}
+  objNetGM_Local: {fileID: 0}
+  playerControl_LocalClient: {fileID: 0}
   tick: 0
   tickDel: 0
   Count: 0
-  deltaResult: 0
-  coefInExtr: 0.9
 --- !u!114 &114813805371011782
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -481,12 +460,9 @@ MonoBehaviour:
   ServerJump: 0
   ServerYRotation: 0
   ServerXRotation: 0
-  ServerMoveVerticalOld: 0
   maxRate: 0.05
-  tick: 0
-  timeOfClient: 0
-  timeOfServer: 0
-  pingClient: 0
+  useGravity: 1
+  mass: 10
 --- !u!136 &136174763108587442
 CapsuleCollider:
   m_ObjectHideFlags: 1

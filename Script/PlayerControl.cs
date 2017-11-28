@@ -14,23 +14,14 @@ public class PlayerControl : MonoBehaviour {
 	float _yRotationOld = 0;
 	float _xRotationOld = 0; 
 
-	[SerializeField]
-	float speed = 1f;
+	[SerializeField] float speed = 1f;
 
-	[SerializeField]
-	float lookSpeed = 1;
+	[SerializeField] float lookSpeed = 1;
 
-	[SerializeField]
-	float forceJump = 1;
+	[SerializeField] float forceJump = 1;
 	Rigidbody _rigidbody;
 
 	Vector3 rotationResult;
-
-	[SerializeField]
-	bool playingNetwork = false;
-
-	[SerializeField]
-	float _delta = 1;
 
 	public Vector3 test;
 
@@ -38,40 +29,17 @@ public class PlayerControl : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		_rigidbody = GetComponent<Rigidbody>();
-		Vector3 rotationResult = new Vector3();
 	}
 	
 	// Update is called once per frame
-	void Update () {
-
-		if(playingNetwork == false)
-		{
-			_moveVertical = 0;
-			if(Input.GetKey(KeyCode.W))
-				_moveVertical = 1;
-			if(Input.GetKey(KeyCode.W))
-				_moveVertical = -1;
-			_moveHorizontal = 0;
-			if(Input.GetKey(KeyCode.D))
-				_moveHorizontal = 1;
-			if(Input.GetKey(KeyCode.A))
-				_moveHorizontal = -1;
-
-			_jump = Input.GetButtonDown("Jump");
-
-			_yRotation += Input.GetAxisRaw("Mouse Y");
-			_xRotation += Input.GetAxisRaw("Mouse X");
-		}
-		
-	}
-
+	
 	void FixedUpdate()
 	{
 		// управление
 		Vector3 velocity = (transform.right * _moveHorizontal + transform.forward*_moveVertical).normalized * speed;
 		test = velocity;
 		
-		_rigidbody.MovePosition(_rigidbody.position + velocity * Time.fixedDeltaTime);
+		_rigidbody.MovePosition(_rigidbody.position + velocity * Time.deltaTime);
 
 		if(_yRotation != _yRotationOld || _xRotation != _xRotationOld)
 		{

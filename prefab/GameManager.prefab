@@ -19,7 +19,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4777104031986090}
-  - component: {fileID: 114545241619333246}
+  - component: {fileID: 114472750178596486}
   - component: {fileID: 114459793768728498}
   m_Layer: 0
   m_Name: GameManager
@@ -73,7 +73,7 @@ MonoBehaviour:
     i15: 118
   m_ServerOnly: 0
   m_LocalPlayerAuthority: 0
---- !u!114 &114545241619333246
+--- !u!114 &114472750178596486
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -81,9 +81,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 1181736192726412}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a9e5bbf78a86554f92be6980f69e94e, type: 3}
+  m_Script: {fileID: 11500000, guid: 2862f3c091b6a194cb8d49840910b22b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guiZone: {fileID: 0}
-  font: {fileID: 0}
-  serverTime: 123
+  _serverTime: 0
+  pingClient: 0

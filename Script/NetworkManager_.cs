@@ -8,10 +8,7 @@ public class NetworkManager_ : NetworkBehaviour {
 	
 	static public List<PlayerNetwork> lPlyer = new List<PlayerNetwork>();
 	static public NetworkManager_ sInstance = null;
-	public GameObject guiZone;
-	public Font font;
 	public float serverTime = 1;
-	public float serverTime2 = 9;
 
 	// Use this for initialization
 	void Start () {
