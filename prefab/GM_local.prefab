@@ -108,3 +108,7 @@ MonoBehaviour:
     type: 2}
   Prefab_UI_tab_panel: {fileID: 1234672706079440, guid: 3c7ce47ad8bc20249a5fa5696bdff4b1,
     type: 2}
+  Prefab_UI_console: {fileID: 1607031207867098, guid: 4fa9a6a2ab10cb6418671165e3ba718f,
+    type: 2}
+  moveV: 0
+  moveH: 0

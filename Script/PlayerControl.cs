@@ -1,20 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Networking;
 
-public class PlayerControl : MonoBehaviour {
+public class PlayerControl : NetworkBehaviour
+{
 
     float _moveHorizontal = 0;
     float _moveVertical = 0;
 	bool _jump = false;
+    bool _shout = false;
 
 	float _yRotation = 0;
 	float _xRotation = 0; 
 	float _yRotationOld = 0;
-	float _xRotationOld = 0; 
+	float _xRotationOld = 0;
 
-	[SerializeField] float speed = 1f;
+    public float bulletForce = 10f;
+
+    [SerializeField] float speed = 1f;
 
 	[SerializeField] float lookSpeed = 1;
 
@@ -25,9 +29,12 @@ public class PlayerControl : MonoBehaviour {
 
 	public Vector3 test;
 
+    [SerializeField] GameObject prefubBullet;
+    [SerializeField] GameObject bulletSpawn;
+
     // 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 		_rigidbody = GetComponent<Rigidbody>();
 	}
 	
@@ -55,7 +62,7 @@ public class PlayerControl : MonoBehaviour {
 		}
 		if(_jump == true)
 			_rigidbody.AddForce(transform.up * forceJump); // сделать возможность только одного прыжка
-		
+	
 		// конец управления
 
 	}

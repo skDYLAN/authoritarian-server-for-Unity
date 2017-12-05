@@ -7,6 +7,10 @@ using UnityEngine.Networking;
 public class PlayerNetwork : NetworkBehaviour {
 
 	Text _textPosition;
+    public NetworkInstanceId idGM;
+
+    [SyncVar]
+    public float health = 100f;
 
     //Серверные значения
     public float ServerMoveHorizontal = 0;
@@ -14,6 +18,7 @@ public class PlayerNetwork : NetworkBehaviour {
 	public bool ServerJump = false;
     public float ServerYRotation = 0;
     public float ServerXRotation = 0;
+    public bool ServerShout = false;
     //
 
     //Старые Серверные значения
@@ -21,11 +26,18 @@ public class PlayerNetwork : NetworkBehaviour {
     float ServerMoveVerticalOld = 0;
 	bool ServerJumpOld = false;
 	float ServerYRotationOld = 0;
-	float ServerXRotationOld = 0; 
-	//
+	float ServerXRotationOld = 0;
+    bool ServerShoutOld = false;
+    //
 
-	//Серверные
-	public float maxRate = 0.03f;
+    [Header("Оружее")]
+    float timeLastShout = 0;
+    [SerializeField] float rateOfFire = 0.5f; // в зависимости от типа оружия
+    [SerializeField] GameObject prefub_bullet; // в зависимости от типа оружия (должны получать из оружия в руке)
+    [SerializeField] GameObject bulletOfSpawn;
+
+    //Серверные
+    public float maxRate = 0.03f;
     PlayerControl playerControl_server;
     //
     //параметры объекта
@@ -56,6 +68,8 @@ public class PlayerNetwork : NetworkBehaviour {
             _rigidbody = GetComponent<Rigidbody>();
             _rigidbody.useGravity = useGravity;
             _rigidbody.mass = mass;
+            _rigidbody.constraints = RigidbodyConstraints.None;
+            _rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
 
         }
     }
@@ -85,6 +99,21 @@ public class PlayerNetwork : NetworkBehaviour {
 				if(Time.time > screensTransformPlayerOnServer[0].time + 1f)
 					screensTransformPlayerOnServer.RemoveAt(0);
 
+            if(ServerShout == true && timeLastShout+rateOfFire <= Time.time)
+            {
+                timeLastShout = Time.time;
+
+                var obj = (GameObject)Instantiate(
+                    prefub_bullet,
+                    bulletOfSpawn.transform.position,
+                    bulletOfSpawn.transform.rotation);
+
+                NetworkServer.Spawn(obj);
+
+                NetworkMan netMan = GameObject.Find("Network").GetComponent<NetworkMan>();
+                //netMan.AddObjectToPlayer(idGM, obj);
+            }
+
 		}
 	}
 
@@ -108,6 +137,13 @@ public class PlayerNetwork : NetworkBehaviour {
 		
 		
 	}
+
+    public void GetHit(float damage)
+    {
+        health -= damage;
+        if (health <= 0)
+            Debug.Log("Объект уничтожен");
+    }
 
 	IEnumerator IEPlayerMove()
     {

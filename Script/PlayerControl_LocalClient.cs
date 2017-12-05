@@ -11,13 +11,16 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 	[SerializeField] GameObject Prefab_UI_LocalPlayer;
     [SerializeField] GameObject Prefab_UI_arms_LocalPlayer;
     [SerializeField] GameObject Prefab_UI_tab_panel;
+    [SerializeField] GameObject Prefab_UI_console;
     GameObject UI_LocalPlayer;
+    GameObject UI_Console;
     GameObject UI_arms_LocalPlayer;
     GameObject UI_tab_panel;
     Text UI_tPing;
 	Text UI_tTime;
     Text UI_tTail;
     Text UI_tLoosePocket;
+    Text UI_tHealth;
 
     GameObject camControl;
     NetGM_Local netGM_Local;
@@ -30,6 +33,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
     bool _jump = false;
     float _yRotation = 0;
     float _xRotation = 0;
+    public bool _shot = false;
     //
     //старые значения
     float _moveHorizontalOld = 0;
@@ -37,6 +41,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
     bool _jumpOld = false;
     float _yRotationOld = 0;
     float _xRotationOld = 0;
+    bool _shotOld = false;
     //
 
     //Опережающий ввод
@@ -58,16 +63,14 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
             netGM_Local = GetComponent<NetGM_Local>();
             CmdInitPlayer(netId);
         }
-
-
-
-		
+	
 	}
 
     private void Update()
     {
         if (isLocalPlayer)
         {
+            // Блок управления
             if(Input.GetKeyDown(KeyCode.G) && player == null)
 	    	{
 		    	CmdSpawn(netId);
@@ -75,110 +78,131 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 
             if(player != null)
             {
-                _moveVertical = 0;
-                if (Input.GetKey(KeyCode.W))
-                    _moveVertical = 1;
-                if (Input.GetKey(KeyCode.S))
-                    _moveVertical = -1;
-
-                _moveHorizontal = 0;
-                if (Input.GetKey(KeyCode.D))
-                    _moveHorizontal = 1;
-                if (Input.GetKey(KeyCode.A))
-                    _moveHorizontal = -1;
-                
-                if (Input.GetKeyDown(KeyCode.Space))
-                    _jump = true;
-                if (Input.GetKeyUp(KeyCode.Space))
-                    _jump = false;
-
-                _yRotation += Input.GetAxisRaw("Mouse Y");
-                _xRotation += Input.GetAxisRaw("Mouse X");
-
-                player.GetComponent<PlayerControl>().setRotationX(_xRotation);
-                player.GetComponent<PlayerControl>().setRotationY(_yRotation);
-
-                CmdSetRotationY_Server(_yRotation, player);
-                CmdSetRotationX_Server(_xRotation, player);
-
-                if (_moveHorizontal != _moveHorizontalOld)
+                if (UI_Console.activeInHierarchy == false)
                 {
-                    _moveHorizontalOld = _moveHorizontal;
-                    CmdSendInputMoveHorizaontal(_moveHorizontal, player);
-                    moveH = true;
-                    timeMoveHorizonta = Time.time + 0.1f;
-                    timeStartH = Time.time + 0.1f + GetComponent<NetGM_Local>().GetPing() / 2;
+                    _moveVertical = 0;
+                    if (Input.GetKey(KeyCode.W))
+                        _moveVertical = 1;
+                    if (Input.GetKey(KeyCode.S))
+                        _moveVertical = -1;
+
+                    _moveHorizontal = 0;
+                    if (Input.GetKey(KeyCode.D))
+                        _moveHorizontal = 1;
+                    if (Input.GetKey(KeyCode.A))
+                        _moveHorizontal = -1;
+
+                    if (Input.GetKeyDown(KeyCode.Space))
+                        _jump = true;
+                    if (Input.GetKeyUp(KeyCode.Space))
+                        _jump = false;
+
+                    _yRotation += Input.GetAxisRaw("Mouse Y");
+                    _xRotation += Input.GetAxisRaw("Mouse X");
+
+                    player.GetComponent<PlayerControl>().setRotationX(_xRotation);
+                    player.GetComponent<PlayerControl>().setRotationY(_yRotation);
+
+                    CmdSetRotationY_Server(_yRotation, player);
+                    CmdSetRotationX_Server(_xRotation, player);
+
+                    if (_moveHorizontal != _moveHorizontalOld)
+                    {
+                        _moveHorizontalOld = _moveHorizontal;
+                        CmdSendInputMoveHorizaontal(_moveHorizontal, player);
+                        moveH = false;
+                        timeMoveHorizonta = Time.time + 0.1f;
+                        timeStartH = Time.time + 0.1f + GetComponent<NetGM_Local>().GetPing() / 2;
+                    }
+
+                    if (_moveVertical != _moveVerticalOld)
+                    {
+                        _moveVerticalOld = _moveVertical;
+                        CmdSendInputMoveVertical(_moveVertical, player);
+                        moveV = false;
+                        timeMoveVertical = Time.time + 0.1f;
+                        timeStartV = Time.time + 0.1f + GetComponent<NetGM_Local>().GetPing() / 2;
+
+                    }
+                    if (_jump != _jumpOld)
+                    {
+                        _jumpOld = _jump;
+                        CmdSendInputJump(_jump, player);
+                    }
+
+                    _shot = Input.GetButton("Fire1");
+
+
+                    if (_shot !=_shotOld)
+                    {
+                        _shotOld = _shot;
+                        CmdFire(_shot, player);
+                    }
+
+                    if (Time.time > timeStartH)
+                        player.GetComponent<PlayerControl>().setMoveHorizontal(_moveHorizontalOld);
+                    else
+                        moveH = false;
+
+                    if (Time.time > timeStartV)
+                        player.GetComponent<PlayerControl>().setMoveVertical(_moveVerticalOld);
+                    else
+                        moveV = false;
+
+                    if (Input.GetKeyDown(KeyCode.Tab))
+                        tubControl(true);
+                    if (Input.GetKeyUp(KeyCode.Tab))
+                        tubControl(false);
+
                 }
+                if (Input.GetKey(KeyCode.F12))
+                    ConsoleControl();
 
-                if (_moveVertical != _moveVerticalOld)
-                {
-                    _moveVerticalOld = _moveVertical;
-                    CmdSendInputMoveVertical(_moveVertical, player);
-                    moveV = true;
-                    timeMoveVertical = Time.time + 0.1f;
-                    timeStartV = Time.time + 0.1f + GetComponent<NetGM_Local>().GetPing()/2;
+               // CmdFire(true, player);
+                //
 
-                }
-                if(_jump != _jumpOld)
-                {
-                    _jumpOld = _jump;
-                    CmdSendInputJump(_jump, player);
-                }
-
-                if (Time.time > timeStartH)
-                    player.GetComponent<PlayerControl>().setMoveHorizontal(_moveHorizontalOld);
-                else
-                    moveH = false;
-
-
-
-                if (Time.time > timeStartV)
-                    player.GetComponent<PlayerControl>().setMoveVertical(_moveVerticalOld);
-                else
-                    moveV = false;
-
-
-                if (Input.GetKeyDown(KeyCode.Tab))
-                    tubControl(true);
-                if (Input.GetKeyUp(KeyCode.Tab))
-                    tubControl(false);
-
+                // блок вывод UI
+                UpdateUI_LocalPlayer();
+                UI_arms_LocalPlayer.GetComponent<Transform>().position = player.GetComponent<Transform>().position;
+                UI_arms_LocalPlayer.GetComponent<Transform>().rotation = player.GetComponent<Transform>().rotation;
             }
         }
     }
 
     // Update is called once per frame
-    void FixedUpdate () {
-		if(!isLocalPlayer)
-			return;
-		if(player != null)
-        {
-            UpdateUI_LocalPlayer();
-            UI_arms_LocalPlayer.GetComponent<Transform>().position = player.GetComponent<Transform>().position;
-            UI_arms_LocalPlayer.GetComponent<Transform>().rotation = player.GetComponent<Transform>().rotation;
-        }
 
-    }
 
     void tubControl(bool active)
     {
-        if(active)
-        {
-            UI_tab_panel.SetActive(true);
-            GameObject[] players = GameObject.FindGameObjectsWithTag("GM_LP");
-            NetworkInstanceId[] id = new NetworkInstanceId[players.Length];
-            string[] nickName = new string[players.Length];
-            float[] ping = new float[players.Length];
-            for (int i=0; i < players.Length; i++)
+        if(UI_tab_panel != null)
+            if(active)
             {
-                id[i] = players[i].GetComponent<NetGM_Local>().netId;
-                nickName[i] = players[i].GetComponent<NetGM_Local>().playerNickname;
-                ping[i] = players[i].GetComponent<NetGM_Local>().myPing;
+                UI_tab_panel.SetActive(true);
+                GameObject[] players = GameObject.FindGameObjectsWithTag("GM_LP");
+                NetworkInstanceId[] id = new NetworkInstanceId[players.Length];
+                string[] nickName = new string[players.Length];
+                float[] ping = new float[players.Length];
+                for (int i=0; i < players.Length; i++)
+                {
+                    id[i] = players[i].GetComponent<NetGM_Local>().netId;
+                    nickName[i] = players[i].GetComponent<NetGM_Local>().playerNickname;
+                    ping[i] = players[i].GetComponent<NetGM_Local>().myPing;
+                }
+                UI_tab_panel.GetComponent<Transform>().Find("Panel").GetComponent<TabPanel>().DisplayTanPanel(id, nickName, ping);
             }
-            UI_tab_panel.GetComponent<Transform>().Find("Panel").GetComponent<TabPanel>().DisplayTanPanel(id, nickName, ping);
-        }
-        else
-            UI_tab_panel.SetActive(false);
+            else
+                UI_tab_panel.SetActive(false);
+    }
+
+    void ConsoleControl()
+    {
+        if (UI_Console != null)
+            if (UI_Console.activeInHierarchy)
+            {
+                UI_Console.SetActive(false);
+            }
+            else
+                UI_Console.SetActive(true);
     }
 
     [Command]
@@ -196,13 +220,13 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 			transform.position + new Vector3(0,1,0), 
 			Quaternion.identity);
 
-	 NetworkServer.Spawn(obj);
+        NetworkServer.Spawn(obj);
 
-     NetworkMan netMan = GameObject.Find("Network").GetComponent<NetworkMan>();
-     netMan.AddObjectToPlayer(_netId, obj);
-    
+        NetworkMan netMan = GameObject.Find("Network").GetComponent<NetworkMan>();
+        netMan.AddObjectToPlayer(_netId, obj);
+        obj.GetComponent<PlayerNetwork>().idGM = _netId;
 
-	 TargetGetObj(connectionToClient, obj);
+        TargetGetObj(connectionToClient, obj);
 	}
 	[TargetRpc]
 	void TargetGetObj(NetworkConnection target, GameObject obj)
@@ -222,6 +246,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
         UI_arms_LocalPlayer = Instantiate(Prefab_UI_arms_LocalPlayer);
         UI_LocalPlayer = Instantiate(Prefab_UI_LocalPlayer);
         UI_tab_panel = Instantiate(Prefab_UI_tab_panel);
+        UI_Console = Instantiate(Prefab_UI_console);
 
 		if(UI_LocalPlayer != null)
 		{
@@ -229,6 +254,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
 			UI_tTime = UI_LocalPlayer.GetComponent<Transform>().Find("tTime").GetComponent<Text>();
             UI_tTail = UI_LocalPlayer.GetComponent<Transform>().Find("tTail").GetComponent<Text>();
             UI_tLoosePocket = UI_LocalPlayer.GetComponent<Transform>().Find("tLoosePocket").GetComponent<Text>();
+            UI_tHealth = UI_LocalPlayer.GetComponent<Transform>().Find("tHealth").GetComponent<Text>();
         }
         if (UI_arms_LocalPlayer != null)
         {
@@ -239,6 +265,8 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
         {
             UI_tab_panel.SetActive(false);
         }
+        if (UI_Console != null)
+            UI_Console.SetActive(false);
 
         player.GetComponent<Transform>().Find("Gun").GetComponent<MeshRenderer>().enabled = false;
         player.GetComponent<Transform>().Find("Hair").GetComponent<MeshRenderer>().enabled = false;
@@ -266,7 +294,8 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
             UI_tTail.text = "Tail: " + player.GetComponent<PlayerControl_Client>()._scrinsTransformPlayer.Count.ToString();
         if (UI_tLoosePocket != null)
             UI_tLoosePocket.text = "Loose pocket: " + player.GetComponent<PlayerControl_Client>().tickDel.ToString();
-            
+        if (UI_tHealth != null)
+            UI_tHealth.text = "Health: " + player.GetComponent<PlayerNetwork>().health.ToString();
 
     }
 
@@ -281,7 +310,11 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
     {
         player.GetComponent<PlayerNetwork>().ServerYRotation = yRotation;
     }
-
+    [Command]
+    void CmdFire(bool fire, GameObject player)
+    {
+        player.GetComponent<PlayerNetwork>().ServerShout = fire;
+    }
     [Command]
     void CmdSendInputMoveHorizaontal(float InputMove, GameObject player)
     {
