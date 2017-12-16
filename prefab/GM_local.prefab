@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4218225635179112}
   - component: {fileID: 114018446597735316}
   - component: {fileID: 114676263915682154}
+  - component: {fileID: 114877638303624702}
   - component: {fileID: 114532399556232714}
   m_Layer: 0
   m_Name: GM_local
@@ -110,5 +111,19 @@ MonoBehaviour:
     type: 2}
   Prefab_UI_console: {fileID: 1607031207867098, guid: 4fa9a6a2ab10cb6418671165e3ba718f,
     type: 2}
+  Prefab_UI_chat: {fileID: 1297138554293940, guid: 0f87978d4d5735345b83177253fc20b5,
+    type: 2}
+  _shot: 0
   moveV: 0
   moveH: 0
+--- !u!114 &114877638303624702
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1915010987804442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa5db5b5e205f924683fb89746172340, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

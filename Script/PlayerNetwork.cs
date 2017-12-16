@@ -159,5 +159,19 @@ public class PlayerNetwork : NetworkBehaviour {
 		}
 	}
 
+    //вызывать сервером!
+    public void DestroyObject()
+    {
+        if(isServer)
+        {
+           NetworkServer.Destroy(gameObject);
+        }
+    }
+
+    void OnDestroy()
+    {
+        GameObject gmlp = GameObject.Find("Network").GetComponent<NetworkMan>().GetGMLPByObjOfPlayer(gameObject);
+        gmlp.GetComponent<PlayerControl_LocalClient>().DeathPlayer();
+    }
 
 }

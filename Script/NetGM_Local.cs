@@ -12,7 +12,8 @@ public class NetGM_Local : NetworkBehaviour {
 	void Start()
 	{	
 		if(isServer)
-			playerNickname = GameObject.Find("Network").GetComponent<NetworkMan>().GetNickname();
+			playerNickname = "UnkownPlayer";
+			//playerNickname = GameObject.Find("Network").GetComponent<NetworkMan>().GetNickname();
 			
 		if(isLocalPlayer)
 		{

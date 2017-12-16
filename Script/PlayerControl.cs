@@ -67,6 +67,11 @@ public class PlayerControl : NetworkBehaviour
 
 	}
 
+	public void PlayerDeath()
+	{
+		
+	}
+
 	public void playerRotationSlerp(Quaternion toRotation)
 	{
 		transform.rotation = toRotation;

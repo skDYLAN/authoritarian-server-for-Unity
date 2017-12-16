@@ -33,8 +33,5 @@ public class serverLogic : NetworkBehaviour {
 	public int count;
 	public float timer;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
+	
 }

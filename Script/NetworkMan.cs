@@ -3,27 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class PlayerInfo
-{
-    public NetworkInstanceId id;
-    public string ip;
-    public List<GameObject> playerObjects = new List<GameObject>();
-    public NetworkConnection conn;
-    public string nickname;
-
-    public PlayerInfo(NetworkConnection _conn)
-    {
-        conn = new NetworkConnection();
-        conn = _conn;
-    }
-
-    public void AddGameObject(GameObject obj)
-    {
-        if (obj != null)
-            playerObjects.Add(obj);
-    }
-
-}
 
 public class NetworkMan : NetworkManager {
 
@@ -49,6 +28,7 @@ public class NetworkMan : NetworkManager {
 			playerInfo[0].nickname = playerNickname;
     }
 
+	//добавить объект к списку объектов игрока
 	public void AddObjectToPlayer(NetworkInstanceId id, GameObject obj)
 	{
 		foreach (var player in playerInfo)
@@ -61,6 +41,7 @@ public class NetworkMan : NetworkManager {
 		}
 	}
 
+	//уничтожить все объекты игрока на сервере
 	public void DestroyPlayer(NetworkConnection conn)
 	{
 		if(conn != null)
@@ -93,4 +74,50 @@ public class NetworkMan : NetworkManager {
 		return playerNickname;
 	}
 	
+	public List<PlayerInfo> GetPlayerInfo()
+	{
+		return playerInfo;
+	}
+
+	public GameObject GetGMLPByObjOfPlayer(GameObject objPlayer)
+	{
+		GameObject[] GMLP = GameObject.FindGameObjectsWithTag("GM_LP");
+		foreach(GameObject gmlp in GMLP)
+		{
+			GameObject pl = gmlp.GetComponent<PlayerControl_LocalClient>().player;
+			if(pl == objPlayer)
+				return gmlp;
+		}
+		return null;
+	}
+	public void kickPlayerById(int id)
+	{
+		foreach (var player in playerInfo)
+			{
+				if(player.id.Value == id)
+				{
+					player.conn.Disconnect();
+				}
+			}
+	}
+	
+	public PlayerInfo GetPlayerByConn(NetworkConnection conn)
+	{
+		foreach (var player in playerInfo)
+		{
+			if(player.conn == conn)
+				return player;
+		}
+		return null;
+	}
+
+	public void SetNicknameOfPlayerByConn(NetworkConnection conn, string newNickname)
+	{
+		foreach (var player in playerInfo)
+		{
+			if(player.conn == conn)
+				player.nickname = newNickname;
+		}
+	}
+
 }

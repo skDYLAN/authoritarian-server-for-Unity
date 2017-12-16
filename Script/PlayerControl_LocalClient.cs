@@ -12,6 +12,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
     [SerializeField] GameObject Prefab_UI_arms_LocalPlayer;
     [SerializeField] GameObject Prefab_UI_tab_panel;
     [SerializeField] GameObject Prefab_UI_console;
+    [SerializeField] GameObject UI_chat;
     GameObject UI_LocalPlayer;
     GameObject UI_Console;
     GameObject UI_arms_LocalPlayer;
@@ -22,6 +23,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
     Text UI_tLoosePocket;
     Text UI_tHealth;
 
+    GameObject cam_Scene;
     GameObject camControl;
     NetGM_Local netGM_Local;
     List <GameObject> objectsOfPlayer = new List<GameObject>(); // объекты игрока
@@ -62,6 +64,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
         {
             netGM_Local = GetComponent<NetGM_Local>();
             CmdInitPlayer(netId);
+            cam_Scene = GameObject.Find("Cam_scene");
         }
 	
 	}
@@ -73,6 +76,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
             // Блок управления
             if(Input.GetKeyDown(KeyCode.G) && player == null)
 	    	{
+                cam_Scene.SetActive(false);
 		    	CmdSpawn(netId);
 	    	}
 
@@ -148,15 +152,11 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
                         player.GetComponent<PlayerControl>().setMoveVertical(_moveVerticalOld);
                     else
                         moveV = false;
-
-                    if (Input.GetKeyDown(KeyCode.Tab))
-                        tubControl(true);
-                    if (Input.GetKeyUp(KeyCode.Tab))
-                        tubControl(false);
+                    
+                    if(Input.GetKeyDown(KeyCode.T))
+                        chatControl();
 
                 }
-                if (Input.GetKey(KeyCode.F12))
-                    ConsoleControl();
 
                // CmdFire(true, player);
                 //
@@ -166,11 +166,28 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
                 UI_arms_LocalPlayer.GetComponent<Transform>().position = player.GetComponent<Transform>().position;
                 UI_arms_LocalPlayer.GetComponent<Transform>().rotation = player.GetComponent<Transform>().rotation;
             }
+            if (Input.GetKeyDown(KeyCode.F12))
+                    ConsoleControl();
+
+            if (Input.GetKeyDown(KeyCode.Tab) && UI_Console.activeInHierarchy == false)
+                        tubControl(true);
+            if (Input.GetKeyUp(KeyCode.Tab))
+                        tubControl(false);
         }
     }
 
     // Update is called once per frame
 
+    void chatControl()
+    {
+        /*
+        if(UI_chat.activeSelf)
+            UI_chat.SetActive(false);
+        else
+            UI_chat.SetActive(true);
+             */
+
+    }
 
     void tubControl(bool active)
     {
@@ -197,7 +214,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
     void ConsoleControl()
     {
         if (UI_Console != null)
-            if (UI_Console.activeInHierarchy)
+            if (UI_Console.activeSelf)
             {
                 UI_Console.SetActive(false);
             }
@@ -238,6 +255,7 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
         //objectsOfPlayer.Add(obj);
         InitUI_LocalPlayer();
 	}
+    
 	void InitUI_LocalPlayer()
 	{	
         //player.GetComponent<PlayerControl_Client>().SetObjGM(gameObject);
@@ -247,6 +265,12 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
         UI_LocalPlayer = Instantiate(Prefab_UI_LocalPlayer);
         UI_tab_panel = Instantiate(Prefab_UI_tab_panel);
         UI_Console = Instantiate(Prefab_UI_console);
+        
+        UI_chat = GameObject.Find("GM_Helper").GetComponent<GM_Helper>().UI_chat;
+        if(UI_chat != null)
+            UI_chat.SetActive(true);
+
+
 
 		if(UI_LocalPlayer != null)
 		{
@@ -329,6 +353,14 @@ public class PlayerControl_LocalClient : NetworkBehaviour {
     void CmdSendInputJump(bool InputJump, GameObject player)
     {
         player.GetComponent<PlayerNetwork>().ServerJump = InputJump;
+    }
+
+    public void DeathPlayer()
+    {
+        Destroy(UI_LocalPlayer);
+        Destroy(UI_arms_LocalPlayer);
+        cam_Scene.SetActive(true);
+        player = null;
     }
 
     void OnDestroy()

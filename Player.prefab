@@ -424,9 +424,8 @@ MonoBehaviour:
   lookSpeed: 3
   forceJump: 300
   test: {x: 0, y: 0, z: 0}
-  prefubBullet: {fileID: 1565337506753076, guid: f9af03cc6d7062f41a3ab8a8e77b39f6,
-    type: 2}
-  bulletSpawn: {fileID: 1588024709343966}
+  prefubBullet: {fileID: 0}
+  bulletSpawn: {fileID: 0}
 --- !u!114 &114261842785696152
 MonoBehaviour:
   m_ObjectHideFlags: 1
